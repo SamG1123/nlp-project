@@ -26,7 +26,7 @@ A React app that uses OpenAI to turn meeting transcripts into a summary, decisio
    npm run dev
    ```
 
-Open the Vite URL shown in the terminal. The server keeps the API key out of the browser. Never commit `.env` or expose the key in frontend code.
+Open the Vite URL shown in the terminal. Paste a transcript or upload a UTF-8 `.txt` file (up to 3 MB). The server keeps the API key out of the browser. Never commit `.env` or expose the key in frontend code.
 
 ## How it works
 

@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 
+const MAX_TRANSCRIPT_FILE_SIZE = 3 * 1024 * 1024;
 const SAMPLE_TRANSCRIPT = `Maya: Thanks, everyone. The main goal today is to get the spring launch ready for April.
 Maya: We agreed to move the launch date to April 18 so the team has time to finish testing.
 Jordan: I'll send the updated launch timeline to the group by Friday.
@@ -25,16 +26,65 @@ function Icon({ name }) {
 }
 
 function App() {
+  const fileInputRef = useRef(null);
   const [transcript, setTranscript] = useState("");
+  const [uploadedFileName, setUploadedFileName] = useState("");
   const [minutes, setMinutes] = useState(null);
   const [activeTab, setActiveTab] = useState("Overview");
   const [notice, setNotice] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isReadingFile, setIsReadingFile] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const wordCount = useMemo(() => transcript.trim() ? transcript.trim().split(/\s+/).length : 0, [transcript]);
 
+  async function handleTranscriptFile(event) {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    setErrorMessage("");
+    setNotice("");
+    if (!file.name.toLowerCase().endsWith(".txt")) {
+      setErrorMessage("Choose a plain-text .txt file.");
+      input.value = "";
+      return;
+    }
+    if (file.size > MAX_TRANSCRIPT_FILE_SIZE) {
+      setErrorMessage("The .txt file must be 3 MB or smaller.");
+      input.value = "";
+      return;
+    }
+    if (file.size === 0) {
+      setErrorMessage("This .txt file is empty.");
+      input.value = "";
+      return;
+    }
+
+    setIsReadingFile(true);
+    try {
+      const contents = (await file.text()).replace(/^\uFEFF/, "");
+      if (!contents.trim()) {
+        setErrorMessage("This .txt file does not contain any readable transcript text.");
+        return;
+      }
+      if (contents.includes("\0")) {
+        setErrorMessage("This file doesn't appear to be a plain-text transcript.");
+        return;
+      }
+      setTranscript(contents);
+      setUploadedFileName(file.name);
+      setMinutes(null);
+    } catch (error) {
+      setErrorMessage("Couldn't read this file. Try saving it as UTF-8 plain text and uploading it again.");
+      console.error("Could not read uploaded transcript file.", error);
+    } finally {
+      setIsReadingFile(false);
+      input.value = "";
+    }
+  }
+
   async function generateMinutes() {
-    if (!transcript.trim()) return;
+    if (!transcript.trim() || isReadingFile) return;
     setIsGenerating(true);
     setErrorMessage("");
     setNotice("");
@@ -118,20 +168,33 @@ function App() {
           <section className="panel input-panel">
             <div className="panel-heading">
               <div><span className="step-label">01 / INPUT</span><h2>Your transcript</h2></div>
-              <button className="text-button" onClick={() => { setTranscript(SAMPLE_TRANSCRIPT); setMinutes(null); setErrorMessage(""); }}>
-                <Icon name="file" /> Try a sample
-              </button>
+              <div className="input-tools">
+                <input
+                  ref={fileInputRef}
+                  className="file-input"
+                  type="file"
+                  accept=".txt,text/plain"
+                  aria-label="Upload a transcript text file"
+                  onChange={handleTranscriptFile}
+                />
+                <button className="text-button" disabled={isReadingFile || isGenerating} onClick={() => fileInputRef.current?.click()}>
+                  <Icon name="upload" /> {isReadingFile ? "Reading…" : "Upload .txt"}
+                </button>
+                <button className="text-button" onClick={() => { setTranscript(SAMPLE_TRANSCRIPT); setUploadedFileName(""); setMinutes(null); setErrorMessage(""); }}>
+                  <Icon name="file" /> Try a sample
+                </button>
+              </div>
             </div>
-            <div className="input-meta"><span>Paste your meeting transcript below</span><span>{wordCount.toLocaleString()} words</span></div>
+            <div className="input-meta"><span>{uploadedFileName || "Paste or upload a .txt transcript"}</span><span>{wordCount.toLocaleString()} words</span></div>
             <textarea
               aria-label="Meeting transcript"
               placeholder={"Paste a transcript here...\n\nSpeaker labels help us attribute action items to the right person."}
               value={transcript}
-              onChange={(event) => setTranscript(event.target.value)}
+              onChange={(event) => { setTranscript(event.target.value); setUploadedFileName(""); }}
             />
             {errorMessage && <div className="error-message" role="alert">{errorMessage}</div>}
             <div className="input-footnote"><span className="info-mark">i</span> Speaker labels like “Alex:” help identify owners accurately.</div>
-            <button className="primary-button" disabled={!transcript.trim() || isGenerating} onClick={generateMinutes}>
+            <button className="primary-button" disabled={!transcript.trim() || isGenerating || isReadingFile} onClick={generateMinutes}>
               <Icon name="sparkle" /> {isGenerating ? "Generating with OpenAI…" : "Generate meeting minutes"} <span className="button-arrow">{isGenerating ? "…" : "→"}</span>
             </button>
             <div className="privacy-caption"><span className="lock-mark">◈</span> Transcript is sent to OpenAI through the server.</div>
