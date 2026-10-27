@@ -1,6 +1,8 @@
 import React, { useMemo, useRef, useState } from "react";
 
 const MAX_TRANSCRIPT_FILE_SIZE = 3 * 1024 * 1024;
+const MINUTES_API_ERROR =
+  'Minutes server returned an invalid response. Run "npm run dev" to start both the React app and API server.';
 const SAMPLE_TRANSCRIPT = `Maya: Thanks, everyone. The main goal today is to get the spring launch ready for April.
 Maya: We agreed to move the launch date to April 18 so the team has time to finish testing.
 Jordan: I'll send the updated launch timeline to the group by Friday.
@@ -94,7 +96,16 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ transcript }),
       });
-      const result = await response.json();
+      const responseText = await response.text();
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch {
+        throw new Error(`${MINUTES_API_ERROR} (HTTP ${response.status})`);
+      }
+      if (!result || typeof result !== "object" || Array.isArray(result)) {
+        throw new Error(MINUTES_API_ERROR);
+      }
       if (!response.ok) throw new Error(result.error || "Could not generate meeting minutes.");
       setMinutes(result);
       setActiveTab("Overview");
