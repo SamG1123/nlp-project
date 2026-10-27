@@ -11,6 +11,7 @@ const requests = [];
 const mockGroq = createServer(async (request, response) => {
   const bodyChunks = [];
   for await (const chunk of request) bodyChunks.push(chunk);
+  assert.equal(request.url, "/openai/v1/chat/completions");
   const body = JSON.parse(Buffer.concat(bodyChunks).toString());
   requests.push(body);
 
@@ -40,7 +41,7 @@ const mockGroq = createServer(async (request, response) => {
 before(async () => {
   await new Promise((resolve) => mockGroq.listen(0, "127.0.0.1", resolve));
   process.env.GROQ_API_KEY = "test-api-key";
-  process.env.GROQ_BASE_URL = `http://127.0.0.1:${mockGroq.address().port}/v1`;
+  process.env.GROQ_BASE_URL = `http://127.0.0.1:${mockGroq.address().port}`;
 });
 
 after(async () => {

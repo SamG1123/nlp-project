@@ -26,7 +26,7 @@ A React app that uses Groq to turn meeting transcripts into a summary, decisions
    npm run dev
    ```
 
-Open the Vite URL shown in the terminal. Paste a transcript or upload a UTF-8 `.txt` file (up to 3 MB). The server sends requests to `https://api.groq.com/openai/v1` and keeps the API key out of the browser. Never commit `.env` or expose the key in frontend code.
+Open the Vite URL shown in the terminal. Paste a transcript or upload a UTF-8 `.txt` file (up to 3 MB). The server sends requests to Groq's OpenAI-compatible API and keeps the API key out of the browser. Never commit `.env` or expose the key in frontend code.
 
 ## Deploy to Vercel
 

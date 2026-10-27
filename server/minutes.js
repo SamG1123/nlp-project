@@ -239,7 +239,7 @@ export async function generateMinutes(transcript) {
 
   const client = new Groq({
     apiKey: process.env.GROQ_API_KEY,
-    baseURL: process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1",
+    baseURL: process.env.GROQ_BASE_URL || "https://api.groq.com",
     timeout: 120_000,
     maxRetries: 1,
   });
