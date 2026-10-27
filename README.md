@@ -28,6 +28,10 @@ A React app that uses OpenAI to turn meeting transcripts into a summary, decisio
 
 Open the Vite URL shown in the terminal. Paste a transcript or upload a UTF-8 `.txt` file (up to 3 MB). The server keeps the API key out of the browser. Never commit `.env` or expose the key in frontend code.
 
+## Deploy to Vercel
+
+Import the repository into Vercel. The included `vercel.json` builds the Vite frontend from `dist`, and `api/minutes.js` exposes the minutes endpoint as a serverless function. In the Vercel project settings, add `OPENAI_API_KEY` (and optionally `OPENAI_MODEL`) under **Settings → Environment Variables**, then redeploy. Do not rely on the local Express server for the deployed API.
+
 ## How it works
 
 - The server splits long transcripts into chunks of about 1,300 words, summarizes each chunk with OpenAI, then reduces those summaries into a final summary.

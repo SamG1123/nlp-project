@@ -2,7 +2,7 @@ import React, { useMemo, useRef, useState } from "react";
 
 const MAX_TRANSCRIPT_FILE_SIZE = 3 * 1024 * 1024;
 const MINUTES_API_ERROR =
-  'Minutes server returned an invalid response. Run "npm run dev" to start both the React app and API server.';
+  'Minutes API returned an invalid response. Confirm api/minutes.js is included in the deployment. Locally, run "npm run dev".';
 const SAMPLE_TRANSCRIPT = `Maya: Thanks, everyone. The main goal today is to get the spring launch ready for April.
 Maya: We agreed to move the launch date to April 18 so the team has time to finish testing.
 Jordan: I'll send the updated launch timeline to the group by Friday.
