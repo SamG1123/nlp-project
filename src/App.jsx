@@ -154,13 +154,13 @@ function App() {
           <strong>Clear meetings.<br />Clear next steps.</strong>
           <p>Turn the conversation into a plan your team can act on.</p>
         </div>
-        <div className="sidebar-footer"><span className="status-dot" /> OpenAI API · key stays server-side</div>
+        <div className="sidebar-footer"><span className="status-dot" /> Groq API · key stays server-side</div>
       </aside>
 
       <main className="main-content">
         <header className="topbar">
           <div className="breadcrumb">Workspace <span>/</span> <strong>Transcript to minutes</strong></div>
-          <div className="local-badge"><span className="status-dot" /> OpenAI-powered</div>
+          <div className="local-badge"><span className="status-dot" /> Groq-powered</div>
         </header>
 
         <section className="page-heading">
@@ -206,9 +206,9 @@ function App() {
             {errorMessage && <div className="error-message" role="alert">{errorMessage}</div>}
             <div className="input-footnote"><span className="info-mark">i</span> Speaker labels like “Alex:” help identify owners accurately.</div>
             <button className="primary-button" disabled={!transcript.trim() || isGenerating || isReadingFile} onClick={generateMinutes}>
-              <Icon name="sparkle" /> {isGenerating ? "Generating with OpenAI…" : "Generate meeting minutes"} <span className="button-arrow">{isGenerating ? "…" : "→"}</span>
+              <Icon name="sparkle" /> {isGenerating ? "Generating with Groq…" : "Generate meeting minutes"} <span className="button-arrow">{isGenerating ? "…" : "→"}</span>
             </button>
-            <div className="privacy-caption"><span className="lock-mark">◈</span> Transcript is sent to OpenAI through the server.</div>
+            <div className="privacy-caption"><span className="lock-mark">◈</span> Transcript is sent to Groq through the server.</div>
           </section>
 
           <section className={`panel results-panel ${minutes ? "has-results" : ""}`}>

@@ -4,11 +4,11 @@ import { after, before, test } from "node:test";
 import { generateMinutes } from "./minutes.js";
 
 const originalEnvironment = {
-  apiKey: process.env.OPENAI_API_KEY,
-  baseUrl: process.env.OPENAI_BASE_URL,
+  apiKey: process.env.GROQ_API_KEY,
+  baseUrl: process.env.GROQ_BASE_URL,
 };
 const requests = [];
-const mockOpenAI = createServer(async (request, response) => {
+const mockGroq = createServer(async (request, response) => {
   const bodyChunks = [];
   for await (const chunk of request) bodyChunks.push(chunk);
   const body = JSON.parse(Buffer.concat(bodyChunks).toString());
@@ -38,22 +38,22 @@ const mockOpenAI = createServer(async (request, response) => {
 });
 
 before(async () => {
-  await new Promise((resolve) => mockOpenAI.listen(0, "127.0.0.1", resolve));
-  process.env.OPENAI_API_KEY = "test-api-key";
-  process.env.OPENAI_BASE_URL = `http://127.0.0.1:${mockOpenAI.address().port}/v1`;
+  await new Promise((resolve) => mockGroq.listen(0, "127.0.0.1", resolve));
+  process.env.GROQ_API_KEY = "test-api-key";
+  process.env.GROQ_BASE_URL = `http://127.0.0.1:${mockGroq.address().port}/v1`;
 });
 
 after(async () => {
   await new Promise((resolve, reject) => {
-    mockOpenAI.close((error) => (error ? reject(error) : resolve()));
+    mockGroq.close((error) => (error ? reject(error) : resolve()));
   });
-  if (originalEnvironment.apiKey === undefined) delete process.env.OPENAI_API_KEY;
-  else process.env.OPENAI_API_KEY = originalEnvironment.apiKey;
-  if (originalEnvironment.baseUrl === undefined) delete process.env.OPENAI_BASE_URL;
-  else process.env.OPENAI_BASE_URL = originalEnvironment.baseUrl;
+  if (originalEnvironment.apiKey === undefined) delete process.env.GROQ_API_KEY;
+  else process.env.GROQ_API_KEY = originalEnvironment.apiKey;
+  if (originalEnvironment.baseUrl === undefined) delete process.env.GROQ_BASE_URL;
+  else process.env.GROQ_BASE_URL = originalEnvironment.baseUrl;
 });
 
-test("chunks long transcripts and merges schema-constrained model output", async () => {
+test("chunks long transcripts and merges Groq schema-constrained output", async () => {
   requests.length = 0;
   const transcript = Array(1301).fill("discussion").join(" ");
   const minutes = await generateMinutes(transcript);
@@ -74,7 +74,7 @@ test("chunks long transcripts and merges schema-constrained model output", async
   assert.ok(requests.some((request) => request.response_format.json_schema.name === "meeting_decisions_and_actions"));
 });
 
-test("rejects empty transcripts without calling OpenAI", async () => {
+test("rejects empty transcripts without calling Groq", async () => {
   await assert.rejects(() => generateMinutes("  "), {
     message: "Add a meeting transcript before generating minutes.",
     status: 400,

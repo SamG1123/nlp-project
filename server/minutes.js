@@ -1,9 +1,9 @@
-import OpenAI from "openai";
+import Groq from "groq-sdk";
 
 const CHUNK_WORD_LIMIT = 1300;
 const MAX_TRANSCRIPT_WORDS = 100_000;
 const MAX_CONCURRENT_REQUESTS = 3;
-const MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
+const MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-20b";
 
 const summarySchema = {
   type: "object",
@@ -142,10 +142,10 @@ async function requestStructuredOutput(client, schemaName, schema, instruction, 
 
   const message = completion.choices[0]?.message;
   if (message?.refusal) {
-    throw new Error(`OpenAI refused a transcript-processing request: ${message.refusal}`);
+    throw new Error(`Groq refused a transcript-processing request: ${message.refusal}`);
   }
   if (!message?.content) {
-    throw new Error("OpenAI returned an empty structured response.");
+    throw new Error("Groq returned an empty structured response.");
   }
   return JSON.parse(message.content);
 }
@@ -231,15 +231,15 @@ export async function generateMinutes(transcript) {
     throw error;
   }
 
-  if (!process.env.OPENAI_API_KEY) {
-    const error = new Error("OpenAI is not configured. Add OPENAI_API_KEY to your .env file and restart the app.");
+  if (!process.env.GROQ_API_KEY) {
+    const error = new Error("Groq is not configured. Add GROQ_API_KEY to your environment variables and restart the app.");
     error.status = 503;
     throw error;
   }
 
-  const client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-    baseURL: process.env.OPENAI_BASE_URL,
+  const client = new Groq({
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1",
     timeout: 120_000,
     maxRetries: 1,
   });

@@ -17,7 +17,7 @@ export async function handleMinutesRequest(request, response) {
     }
     response.status(status).json({
       error: status >= 500 && status !== 503
-        ? "OpenAI could not process this transcript. Check the server logs and try again."
+        ? "Groq could not process this transcript. Check the server logs and try again."
         : error.message,
     });
   }
