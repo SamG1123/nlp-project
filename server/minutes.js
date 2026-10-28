@@ -172,7 +172,7 @@ async function summarizeChunk(client, text) {
     client,
     "meeting_chunk_summary",
     summarySchema,
-    "Summarize this meeting transcript chunk in up to four concise, factual key points. Preserve important context and outcomes. Do not invent details.",
+    "Summarize this meeting transcript chunk into concise, factual key points. Preserve important context and outcomes. Do not invent details.",
     text,
   );
   return result.keyPoints;
