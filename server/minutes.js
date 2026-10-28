@@ -1,6 +1,6 @@
 import Groq from "groq-sdk";
 
-const CHUNK_WORD_LIMIT = 1300;
+const CHUNK_WORD_LIMIT = 2300;
 const MAX_TRANSCRIPT_WORDS = 100_000;
 const MAX_CONCURRENT_REQUESTS = 3;
 const MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-20b";
